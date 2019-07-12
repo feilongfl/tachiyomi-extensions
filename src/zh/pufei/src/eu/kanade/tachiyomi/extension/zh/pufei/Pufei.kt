@@ -18,22 +18,22 @@ import android.util.Base64
 
 import org.jsoup.Jsoup // import for patch
 
-fun asJsoup(response: Response, html: String? = null): Document {
-    return Jsoup.parse(html ?: bodyWithAutoCharset(response), response.request().url().toString())
-}
-
-fun bodyWithAutoCharset(response: Response, _charset: String? = null): String {
-    val htmlBytes: ByteArray = response.body()!!.bytes()
-    var c = _charset
-
-    if (c == null) {
-        var regexPat = Regex("""charset=(\w+)""")
-        val match = regexPat.find(String(htmlBytes))
-        c = match?.groups?.get(1)?.value
-    }
-
-    return String(htmlBytes, charset(c ?: "utf8"))
-}
+//fun asJsoup(response: Response, html: String? = null): Document {
+//    return Jsoup.parse(html ?: bodyWithAutoCharset(response), response.request().url().toString())
+//}
+//
+//fun bodyWithAutoCharset(response: Response, _charset: String? = null): String {
+//    val htmlBytes: ByteArray = response.body()!!.bytes()
+//    var c = _charset
+//
+//    if (c == null) {
+//        var regexPat = Regex("""charset=(\w+)""")
+//        val match = regexPat.find(String(htmlBytes))
+//        c = match?.groups?.get(1)?.value
+//    }
+//
+//    return String(htmlBytes, charset(c ?: "utf8"))
+//}
 
 // patch finish
 
@@ -97,8 +97,8 @@ class Pufei : ParsedHttpSource() {
     }
 
     override fun searchMangaParse(response: Response): MangasPage {
-//        val document = response.asJsoup()
-        val document = asJsoup(response)
+        val document = response.asJsoup()
+//        val document = asJsoup(response)
         val mangas = document.select(searchMangaSelector()).map { element ->
             searchMangaFromElement(element)
         }
@@ -150,7 +150,7 @@ class Pufei : ParsedHttpSource() {
 
     // temp patch
     override fun latestUpdatesParse(response: Response): MangasPage {
-        val document = asJsoup(response)
+        val document = response.asJsoup()
 
         val mangas = document.select(latestUpdatesSelector()).map { element ->
             latestUpdatesFromElement(element)
@@ -164,7 +164,7 @@ class Pufei : ParsedHttpSource() {
     }
 
     override fun popularMangaParse(response: Response): MangasPage {
-        val document = asJsoup(response)
+        val document = response.asJsoup()
 
         val mangas = document.select(popularMangaSelector()).map { element ->
             popularMangaFromElement(element)
@@ -178,20 +178,20 @@ class Pufei : ParsedHttpSource() {
     }
 
     override fun mangaDetailsParse(response: Response): SManga {
-        return mangaDetailsParse(asJsoup(response))
+        return mangaDetailsParse(response.asJsoup())
     }
 
     override fun chapterListParse(response: Response): List<SChapter> {
-        val document = asJsoup(response)
+        val document = response.asJsoup()
         return document.select(chapterListSelector()).map { chapterFromElement(it) }
     }
 
     override fun pageListParse(response: Response): List<Page> {
-        return pageListParse(asJsoup(response))
+        return pageListParse(response.asJsoup())
     }
 
     override fun imageUrlParse(response: Response): String {
-        return imageUrlParse(asJsoup(response))
+        return imageUrlParse(response.asJsoup())
     }
     // patch finish
 }
